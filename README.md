@@ -1,38 +1,60 @@
-# React-shop-cloudfront
+# INFRASTRUCTURE
 
-This is frontend starter project for nodejs-aws mentoring program. It uses the following technologies:
+## AWS CDK deployment (S3 / optional CloudFront)
 
-- [Vite](https://vitejs.dev/) as a project bundler
-- [React](https://beta.reactjs.org/) as a frontend framework
-- [React-router-dom](https://reactrouterdotcom.fly.dev/) as a routing library
-- [MUI](https://mui.com/) as a UI framework
-- [React-query](https://react-query-v3.tanstack.com/) as a data fetching library
-- [Formik](https://formik.org/) as a form library
-- [Yup](https://github.com/jquense/yup) as a validation schema
-- [Vitest](https://vitest.dev/) as a test runner
-- [MSW](https://mswjs.io/) as an API mocking library
-- [Eslint](https://eslint.org/) as a code linting tool
-- [Prettier](https://prettier.io/) as a code formatting tool
-- [TypeScript](https://www.typescriptlang.org/) as a type checking tool
+Infrastructure is defined in `lib/frontend-hosting-stack.ts` and wired in `bin/cdk.ts`.
+Toggle `ENABLE_CLOUDFRONT` in the stack file: `false` publishes the Vite build to a **public S3 static website**; `true` adds **CloudFront** and cache invalidation on deploy.
 
-## Available Scripts
+### Prerequisites
 
-### `start`
+1. [Node.js](https://nodejs.org/) and npm (project dependencies installed with `npm install`).
+2. [AWS CLI v2](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) on your `PATH`.
+3. AWS credentials for an IAM user with permission to create the stack (S3, CloudFormation, IAM roles used by CDK assets, etc.).
 
-Starts the project in dev mode with mocked API on local environment.
+Configure the default profile and region (used by CDK unless you override `AWS_PROFILE` / `AWS_REGION`):
 
-### `build`
+```bash
+aws configure
+```
 
-Builds the project for production in `dist` folder.
+Check identity:
 
-### `preview`
+```bash
+aws sts get-caller-identity
+```
 
-Starts the project in production mode on local environment.
+### One-time: bootstrap CDK in this account and region
 
-### `test`, `test:ui`, `test:coverage`
+Required before the first `deploy` in an environment (creates CDK bootstrap resources, including the SSM parameter CDK expects):
 
-Runs tests in console, in browser or with coverage.
+```bash
+npm run infra:bootstrap
+```
 
-### `lint`, `prettier`
+Run this once per **AWS account + region** you deploy into.
 
-Runs linting and formatting for all files in `src` folder.
+### Infrastructure scripts
+
+| Script                    | What it does                                                                                            |
+| ------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `npm run cdk -- <args>`   | Runs the CDK CLI (e.g. `npm run cdk -- diff`).                                                          |
+| `npm run infra:bootstrap` | `cdk bootstrap` — prepare the account/region for CDK.                                                   |
+| `npm run infra:synth`     | Builds the app (`dist/`) then `cdk synth` — validates the CloudFormation template without deploying.    |
+| `npm run infra:deploy`    | Builds the app then `cdk deploy --require-approval never` — deploys the stack and uploads the frontend. |
+| `npm run infra:destroy`   | `cdk destroy --force` — deletes the stack and managed resources (use with care).                        |
+
+Typical flow:
+
+```bash
+npm install
+npm run infra:bootstrap
+npm run infra:deploy
+```
+
+After a successful deploy, CDK prints **Outputs** from the stack, for example `BucketName` and `S3WebsiteUrl` (S3-only mode) or `CloudFrontUrl` when `ENABLE_CLOUDFRONT` is `true`. Open that URL in a browser to verify the site.
+
+To tear everything down:
+
+```bash
+npm run infra:destroy
+```
