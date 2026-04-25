@@ -45,7 +45,7 @@ export class FrontendHostingStack extends cdk.Stack {
               ttl: cdk.Duration.seconds(0),
             },
           ],
-        },
+        }
       );
 
       new s3deploy.BucketDeployment(this, "DeployFrontendAssets", {
