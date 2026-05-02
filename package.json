@@ -13,7 +13,7 @@
     "prettier": "prettier src --write",
     "cdk": "cdk",
     "infra:bootstrap": "cdk bootstrap",
-    "infra:synth": "npm run build && cdk synth",
+    "infra:synth": "cdk synth",
     "infra:deploy": "npm run build && cdk deploy --require-approval never",
     "infra:destroy": "cdk destroy --force"
   },

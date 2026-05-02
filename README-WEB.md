@@ -15,6 +15,12 @@ This is frontend starter project for nodejs-aws mentoring program. It uses the f
 - [Prettier](https://prettier.io/) as a code formatting tool
 - [TypeScript](https://www.typescriptlang.org/) as a type checking tool
 
+## Environment variables
+
+Vite only exposes variables whose names start with `VITE_` to client code (`import.meta.env`). Put them in a `.env` or `.env.local` file in the **project root** (next to `package.json`). Restart the dev server after changing env files. In production, values are fixed at **`vite build`** time.
+
+Rename .env.example into .env and input there your api gateway address
+
 ## Available Scripts
 
 ### `start`
