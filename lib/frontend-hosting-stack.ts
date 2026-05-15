@@ -14,7 +14,7 @@ export class FrontendHostingStack extends cdk.Stack {
 
     if (ENABLE_CLOUDFRONT) {
       const siteBucket = new s3.Bucket(this, "SiteBucket", {
-        bucketName: `nodejs-aws-shop-react-new-one-bucket-${cdk.Aws.ACCOUNT_ID}`,
+        bucketName: `nodejs-aws-shop-react-new-bucket-${cdk.Aws.ACCOUNT_ID}`,
         blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
         enforceSSL: true,
         removalPolicy: cdk.RemovalPolicy.DESTROY,
@@ -64,7 +64,7 @@ export class FrontendHostingStack extends cdk.Stack {
       });
     } else {
       const siteBucket = new s3.Bucket(this, "SiteBucket", {
-        bucketName: `nodejs-aws-shop-react-new-one-bucket-${cdk.Aws.ACCOUNT_ID}`,
+        bucketName: `nodejs-aws-shop-react-new-bucket-${cdk.Aws.ACCOUNT_ID}`,
         websiteIndexDocument: "index.html",
         websiteErrorDocument: "index.html",
         publicReadAccess: true,
