@@ -8,9 +8,10 @@ import PaperLayout from "~/components/PaperLayout/PaperLayout";
 import Typography from "@mui/material/Typography";
 import {
   useAvailableProduct,
+  useCreateAvailableProduct,
   useInvalidateAvailableProducts,
   useRemoveProductCache,
-  useUpsertAvailableProduct,
+  useUpdateAvailableProduct,
 } from "~/queries/products";
 
 const initialValues: AvailableProduct = AvailableProductSchema.cast({});
@@ -21,21 +22,17 @@ export default function PageProductForm() {
   const invalidateAvailableProducts = useInvalidateAvailableProducts();
   const removeProductCache = useRemoveProductCache();
   const { data, isLoading } = useAvailableProduct(id);
-  const { mutateAsync: upsertAvailableProduct } = useUpsertAvailableProduct();
+  const { mutateAsync: createAvailableProduct } = useCreateAvailableProduct();
+  const { mutateAsync: updateAvailableProduct } = useUpdateAvailableProduct();
   const onSubmit = (values: AvailableProduct) => {
     const formattedValues = AvailableProductSchema.cast(values);
-    const productToSave = id
-      ? {
-          ...formattedValues,
-          id,
-        }
-      : formattedValues;
-    return upsertAvailableProduct(productToSave, {
-      onSuccess: () => {
-        invalidateAvailableProducts();
-        removeProductCache(id);
-        navigate("/admin/products");
-      },
+    const saveProduct = id
+      ? updateAvailableProduct({ ...formattedValues, id })
+      : createAvailableProduct(formattedValues);
+    return saveProduct.then(() => {
+      invalidateAvailableProducts();
+      removeProductCache(id);
+      navigate("/admin/products");
     });
   };
 

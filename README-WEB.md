@@ -15,17 +15,15 @@ This is frontend starter project for nodejs-aws mentoring program. It uses the f
 - [Prettier](https://prettier.io/) as a code formatting tool
 - [TypeScript](https://www.typescriptlang.org/) as a type checking tool
 
-## Environment variables
+## API base URL
 
-Vite only exposes variables whose names start with `VITE_` to client code (`import.meta.env`). Put them in a `.env` or `.env.local` file in the **project root** (next to `package.json`). Restart the dev server after changing env files. In production, values are fixed at **`vite build`** time.
-
-Rename .env.example into .env and input there your api gateway address
+The BFF and other service URLs share one base address in `src/constants/apiPaths.ts` as `API_BASE_URL`. Change that constant when you point the app at another API Gateway stage or account — do not use `.env` for the API URL in this project.
 
 ## Available Scripts
 
 ### `start`
 
-Starts the project in dev mode with mocked API on local environment.
+Starts the project in dev mode. Calls the real API from `API_BASE_URL` unless `VITE_ENABLE_MSW=true`.
 
 ### `build`
 

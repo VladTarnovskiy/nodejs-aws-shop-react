@@ -6,7 +6,7 @@ import * as s3deploy from "aws-cdk-lib/aws-s3-deployment";
 import * as cloudfront from "aws-cdk-lib/aws-cloudfront";
 import * as origins from "aws-cdk-lib/aws-cloudfront-origins";
 
-const ENABLE_CLOUDFRONT = true;
+const ENABLE_CLOUDFRONT = false;
 
 export class FrontendHostingStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
