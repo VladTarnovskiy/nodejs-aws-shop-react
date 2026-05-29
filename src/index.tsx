@@ -7,6 +7,39 @@ import { BrowserRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
 import { theme } from "~/theme";
+import axios from "axios";
+import { setupAuthToken } from "~/utils/setupAuthToken";
+
+setupAuthToken();
+
+function showHttpAuthAlert(status: 401 | 403): void {
+  if (status === 401) {
+    alert(
+      "401 Unauthorized: authentication failed. Check authorization_token in localStorage."
+    );
+    return;
+  }
+  alert("403 Forbidden: you are not allowed to access this resource.");
+}
+
+function resolveAuthErrorStatus(error: unknown): 401 | 403 | undefined {
+  if (!axios.isAxiosError(error)) {
+    return undefined;
+  }
+  const status = error.response?.status;
+  return status === 401 || status === 403 ? status : undefined;
+}
+
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const status = resolveAuthErrorStatus(error);
+    if (status) {
+      showHttpAuthAlert(status);
+    }
+    return Promise.reject(error);
+  }
+);
 
 const queryClient = new QueryClient({
   defaultOptions: {
