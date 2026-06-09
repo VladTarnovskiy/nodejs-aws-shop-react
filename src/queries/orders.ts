@@ -2,45 +2,51 @@ import axios, { AxiosError } from "axios";
 import React from "react";
 import { useQuery, useQueryClient, useMutation } from "react-query";
 import API_PATHS from "~/constants/apiPaths";
-import { OrderStatus } from "~/constants/order";
-import { Order } from "~/models/Order";
+import { Address, Order } from "~/models/Order";
+import { authHeaders } from "~/utils/authHeaders";
+import { isAuthenticated } from "~/utils/authStorage";
+
+export type CheckoutResponse = {
+  order: Order;
+};
 
 export function useOrders() {
-  return useQuery<Order[], AxiosError>("orders", async () => {
-    const res = await axios.get<Order[]>(`${API_PATHS.order}/order`);
-    return res.data;
-  });
+  return useQuery<Order[], AxiosError>(
+    "orders",
+    async () => {
+      const res = await axios.get<Order[]>(
+        `${API_PATHS.order}/api/profile/cart/order`,
+        { headers: authHeaders() }
+      );
+      return res.data;
+    },
+    { enabled: isAuthenticated() }
+  );
 }
 
 export function useInvalidateOrders() {
   const queryClient = useQueryClient();
   return React.useCallback(
     () => queryClient.invalidateQueries("orders", { exact: true }),
-    []
-  );
-}
-
-export function useUpdateOrderStatus() {
-  return useMutation(
-    (values: { id: string; status: OrderStatus; comment: string }) => {
-      const { id, ...data } = values;
-      return axios.put(`${API_PATHS.order}/order/${id}/status`, data, {
-        headers: {
-          Authorization: `Basic ${localStorage.getItem("authorization_token")}`,
-        },
-      });
-    }
+    [queryClient]
   );
 }
 
 export function useSubmitOrder() {
-  return useMutation((values: Omit<Order, "id">) => {
-    return axios.put<Omit<Order, "id">>(`${API_PATHS.order}/order`, values, {
-      headers: {
-        Authorization: `Basic ${localStorage.getItem("authorization_token")}`,
-      },
-    });
-  });
+  return useMutation((values: { address: Address }) =>
+    axios.put<CheckoutResponse>(
+      `${API_PATHS.order}/api/profile/cart/order`,
+      values,
+      { headers: authHeaders() }
+    )
+  );
+}
+
+/** Not supported by cart-api — kept for compatibility; will fail at runtime. */
+export function useUpdateOrderStatus() {
+  return useMutation(() =>
+    Promise.reject(new Error("Order status updates are not supported by cart API"))
+  );
 }
 
 export function useInvalidateOrder() {
@@ -48,16 +54,13 @@ export function useInvalidateOrder() {
   return React.useCallback(
     (id: string) =>
       queryClient.invalidateQueries(["order", { id }], { exact: true }),
-    []
+    [queryClient]
   );
 }
 
+/** Not supported by cart-api — kept for compatibility; will fail at runtime. */
 export function useDeleteOrder() {
-  return useMutation((id: string) =>
-    axios.delete(`${API_PATHS.order}/order/${id}`, {
-      headers: {
-        Authorization: `Basic ${localStorage.getItem("authorization_token")}`,
-      },
-    })
+  return useMutation(() =>
+    Promise.reject(new Error("Order deletion is not supported by cart API"))
   );
 }

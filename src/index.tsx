@@ -8,14 +8,17 @@ import { QueryClient, QueryClientProvider } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
 import { theme } from "~/theme";
 import axios from "axios";
-import { setupAuthToken } from "~/utils/setupAuthToken";
+import {
+  setupImportAuthToken,
+  validateCartAuthSession,
+} from "~/utils/setupAuthToken";
 
-setupAuthToken();
+setupImportAuthToken();
 
 function showHttpAuthAlert(status: 401 | 403): void {
   if (status === 401) {
     alert(
-      "401 Unauthorized: authentication failed. Check authorization_token in localStorage."
+      "401 Unauthorized: authentication failed. Check cart_authorization_token in localStorage."
     );
     return;
   }
@@ -55,16 +58,19 @@ const queryClient = new QueryClient({
 const container = document.getElementById("app");
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const root = createRoot(container!);
-root.render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          <App />
-        </ThemeProvider>
-        <ReactQueryDevtools initialIsOpen={false} />
-      </QueryClientProvider>
-    </BrowserRouter>
-  </React.StrictMode>
-);
+
+validateCartAuthSession().finally(() => {
+  root.render(
+    <React.StrictMode>
+      <BrowserRouter>
+        <QueryClientProvider client={queryClient}>
+          <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <App />
+          </ThemeProvider>
+          <ReactQueryDevtools initialIsOpen={false} />
+        </QueryClientProvider>
+      </BrowserRouter>
+    </React.StrictMode>
+  );
+});

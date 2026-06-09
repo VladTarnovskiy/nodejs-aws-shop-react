@@ -7,7 +7,7 @@ import Typography from "@mui/material/Typography";
 import ReviewCart from "~/components/pages/PageCart/components/ReviewCart";
 import ReviewOrder from "~/components/pages/PageCart/components/ReviewOrder";
 import PaperLayout from "~/components/PaperLayout/PaperLayout";
-import { Address, AddressSchema, Order } from "~/models/Order";
+import { Address, AddressSchema } from "~/models/Order";
 import Box from "@mui/material/Box";
 import { useCart, useInvalidateCart } from "~/queries/cart";
 import AddressForm from "~/components/pages/PageCart/components/AddressForm";
@@ -58,15 +58,9 @@ export default function PageCart() {
       setActiveStep((step) => step + 1);
       return;
     }
-    const values = {
-      items: data.map((i) => ({
-        productId: i.product.id,
-        count: i.count,
-      })),
-      address,
-    };
+    const values = { address };
 
-    submitOrder(values as Omit<Order, "id">, {
+    submitOrder(values, {
       onSuccess: () => {
         setActiveStep(activeStep + 1);
         invalidateCart();
