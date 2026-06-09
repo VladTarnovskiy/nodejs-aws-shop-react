@@ -11,14 +11,15 @@ import { useRegister } from "~/queries/auth";
 import { RegisterFormValues, RegisterSchema } from "../PageLogin/loginSchema";
 import axios from "axios";
 
-const initialValues: RegisterFormValues = RegisterSchema.cast({});
+const initialValues: RegisterFormValues = { name: "", password: "" };
 
 export default function PageRegister() {
   const navigate = useNavigate();
   const { mutateAsync: register, isLoading, error } = useRegister();
 
   const errorMessage = axios.isAxiosError(error)
-    ? error.response?.data?.message ?? "Registration failed"
+    ? (error.response?.data as { message?: string } | undefined)?.message ??
+      "Registration failed"
     : undefined;
 
   const onSubmit = async (values: RegisterFormValues) => {

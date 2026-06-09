@@ -64,8 +64,8 @@ export const handlers = [
       ctx.json<AvailableProduct>(product)
     );
   }),
-  rest.post(`${API_PATHS.cart}/api/auth/register`, async (req, res, ctx) => {
-    const body = await req.json<{ name: string; password: string }>();
+  rest.post(`${API_PATHS.cart}/api/auth/register`, (req, res, ctx) => {
+    const body = req.body as { name: string; password: string };
     if (mockUsers.has(body.name)) {
       return res(
         ctx.status(400),
@@ -75,8 +75,8 @@ export const handlers = [
     mockUsers.set(body.name, body.password);
     return res(ctx.status(201), ctx.json({ userId: crypto.randomUUID() }));
   }),
-  rest.post(`${API_PATHS.cart}/api/auth/login`, async (req, res, ctx) => {
-    const body = await req.json<{ username: string; password: string }>();
+  rest.post(`${API_PATHS.cart}/api/auth/login`, (req, res, ctx) => {
+    const body = req.body as { username: string; password: string };
     if (mockUsers.get(body.username) !== body.password) {
       return res(ctx.status(401), ctx.json({ message: "Invalid credentials" }));
     }

@@ -11,7 +11,7 @@ import { useLogin } from "~/queries/auth";
 import { LoginFormValues, LoginSchema } from "./loginSchema";
 import axios from "axios";
 
-const initialValues: LoginFormValues = LoginSchema.cast({});
+const initialValues: LoginFormValues = { username: "", password: "" };
 
 export default function PageLogin() {
   const navigate = useNavigate();
@@ -22,7 +22,8 @@ export default function PageLogin() {
     (location.state as { from?: { pathname: string } })?.from?.pathname ?? "/";
 
   const errorMessage = axios.isAxiosError(error)
-    ? error.response?.data?.message ?? "Login failed"
+    ? (error.response?.data as { message?: string } | undefined)?.message ??
+      "Login failed"
     : undefined;
 
   const onSubmit = async (values: LoginFormValues) => {
