@@ -20,7 +20,7 @@ export function useOrders() {
       );
       return res.data;
     },
-    { enabled: isAuthenticated() }
+    { enabled: isAuthenticated(), staleTime: 0 }
   );
 }
 
