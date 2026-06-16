@@ -35,11 +35,9 @@ export function useInvalidateCart() {
 
 export function useUpsertCart() {
   return useMutation((values: CartItem) =>
-    axios.put<CartItem[]>(
-      `${API_PATHS.cart}/api/profile/cart`,
-      values,
-      { headers: authHeaders() }
-    )
+    axios.put<CartItem[]>(`${API_PATHS.cart}/api/profile/cart`, values, {
+      headers: authHeaders(),
+    })
   );
 }
 
