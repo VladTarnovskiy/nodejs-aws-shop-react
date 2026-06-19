@@ -7,6 +7,42 @@ import { BrowserRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
 import { theme } from "~/theme";
+import axios from "axios";
+import {
+  setupImportAuthToken,
+  validateCartAuthSession,
+} from "~/utils/setupAuthToken";
+
+setupImportAuthToken();
+
+function showHttpAuthAlert(status: 401 | 403): void {
+  if (status === 401) {
+    alert(
+      "401 Unauthorized: authentication failed. Check cart_authorization_token in localStorage."
+    );
+    return;
+  }
+  alert("403 Forbidden: you are not allowed to access this resource.");
+}
+
+function resolveAuthErrorStatus(error: unknown): 401 | 403 | undefined {
+  if (!axios.isAxiosError(error)) {
+    return undefined;
+  }
+  const status = error.response?.status;
+  return status === 401 || status === 403 ? status : undefined;
+}
+
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const status = resolveAuthErrorStatus(error);
+    if (status) {
+      showHttpAuthAlert(status);
+    }
+    return Promise.reject(error);
+  }
+);
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -14,24 +50,27 @@ const queryClient = new QueryClient({
   },
 });
 
-if (import.meta.env.DEV) {
-  const { worker } = await import("./mocks/browser");
-  worker.start({ onUnhandledRequest: "bypass" });
-}
+// if (import.meta.env.DEV) {
+//   const { worker } = await import("./mocks/browser");
+//   worker.start({ onUnhandledRequest: "bypass" });
+// }
 
 const container = document.getElementById("app");
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const root = createRoot(container!);
-root.render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          <App />
-        </ThemeProvider>
-        <ReactQueryDevtools initialIsOpen={false} />
-      </QueryClientProvider>
-    </BrowserRouter>
-  </React.StrictMode>
-);
+
+validateCartAuthSession().finally(() => {
+  root.render(
+    <React.StrictMode>
+      <BrowserRouter>
+        <QueryClientProvider client={queryClient}>
+          <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <App />
+          </ThemeProvider>
+          <ReactQueryDevtools initialIsOpen={false} />
+        </QueryClientProvider>
+      </BrowserRouter>
+    </React.StrictMode>
+  );
+});

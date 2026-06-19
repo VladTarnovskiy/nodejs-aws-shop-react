@@ -11,6 +11,8 @@ node_modules
 .serverless
 coverage
 dist
+cdk.out
+cdk.context.json
 dist-ssr
 *.local
 

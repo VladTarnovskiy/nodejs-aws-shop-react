@@ -2,7 +2,7 @@
   "root": true,
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "project": "./tsconfig.json"
+    "project": ["./tsconfig.json", "./tsconfig.cdk.json"]
   },
   "extends": [
     "plugin:@typescript-eslint/recommended",
@@ -20,5 +20,14 @@
     "react": {
       "version": "detect"
     }
+  },
+  "rules": {
+    "prettier/prettier": [
+      "error",
+      {
+        "endOfLine": "auto",
+        "trailingComma": "es5"
+      }
+    ]
   }
 }
